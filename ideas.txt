@@ -1,0 +1,3 @@
+stack is LIFO, queue is FIFO
+a hash map gives O(1) average lookup
+git rebase rewrites history, merge doesn't

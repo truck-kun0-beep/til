@@ -1,0 +1,24 @@
+{
+  "name": "til",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/truck-kun0-beep/til.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/truck-kun0-beep/til/issues"
+  },
+  "homepage": "https://github.com/truck-kun0-beep/til#readme",
+  "dependencies": {
+    "simple-git": "^4.0.2"
+  }
+}

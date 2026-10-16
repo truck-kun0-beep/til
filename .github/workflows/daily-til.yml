@@ -1,0 +1,26 @@
+name: daily-til
+on:
+  schedule:
+    - cron: "0 14 * * *"   # every day 14:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  til:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add next note
+        run: |
+          [ -s ideas.txt ] || { echo "ideas.txt empty, skipping"; exit 0; }
+          note=$(head -n 1 ideas.txt)
+          sed -i '1d' ideas.txt
+          [ -f til.md ] || printf '# Today I Learned\n\n' > til.md
+          echo "- **$(date -u +%F)**: $note" >> til.md
+          git config user.name  "YOUR NAME"
+          git config user.email "YOUR_ID+USERNAME@users.noreply.github.com"
+          git add til.md ideas.txt
+          git commit -m "til: $note"
+          git push
