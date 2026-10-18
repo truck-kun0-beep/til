@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Current Time</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: grid;
+      place-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #111;
+      color: #fff;
+      text-align: center;
+    }
+    #time { font-size: 3rem; }
+    #date, #zone { opacity: 0.7; }
+    #open-btn {
+      margin-top: 1.5rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    /* MicroModal ships with NO css, so we write it ourselves */
+    .modal { display: none; }
+    .modal.is-open { display: block; }
+
+    .modal__overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal__container {
+      background: #fff;
+      color: #111;
+      padding: 1.5rem;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+    }
+    .modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .modal__title { margin: 0; font-size: 1.2rem; }
+    .modal__close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    #tz-select { width: 100%; padding: 0.5rem; font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <div>
+    <div id="time"></div>
+    <div id="date"></div>
+    <div id="zone"></div>
+    <button id="open-btn" data-micromodal-trigger="tz-modal">Change timezone</button>
+  </div>
+
+  <!-- the modal -->
+  <div class="modal" id="tz-modal" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+      <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="tz-modal-title">
+        <header class="modal__header">
+          <h2 class="modal__title" id="tz-modal-title">Select a timezone</h2>
+          <button class="modal__close" aria-label="Close modal" data-micromodal-close>&times;</button>
+        </header>
+        <main>
+          <select id="tz-select">
+            <option value="">Choose...</option>
+          </select>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <script src="node_modules/dayjs/dayjs.min.js"></script>
+  <script src="node_modules/dayjs/plugin/utc.js"></script>
+  <script src="node_modules/dayjs/plugin/timezone.js"></script>
+  <script src="node_modules/micromodal/dist/micromodal.min.js"></script>
+  <script>
+    // enable the plugins
+    dayjs.extend(dayjs_plugin_utc);
+    dayjs.extend(dayjs_plugin_timezone);
+
+    // start with the user's own timezone
+    let selectedTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // fill the dropdown with every timezone the browser knows
+    const select = document.getElementById("tz-select");
+    Intl.supportedValuesOf("timeZone").forEach((tz) => {
+      const option = document.createElement("option");
+      option.value = tz;
+      option.textContent = tz;
+      select.appendChild(option);
+    });
+
+    // when user picks one: save it, close modal, refresh the time
+    select.addEventListener("change", () => {
+      if (!select.value) return;
+      selectedTz = select.value;
+      MicroModal.close("tz-modal");
+      updateTime();
+    });
+
+    function updateTime() {
+      const now = dayjs().tz(selectedTz);
+      document.getElementById("time").textContent = now.format("hh:mm:ss A");
+      document.getElementById("date").textContent = now.format("dddd, MMMM D, YYYY");
+      document.getElementById("zone").textContent = selectedTz;
+    }
+
+    MicroModal.init();            // wires up the trigger and close buttons
+    updateTime();
+    setInterval(updateTime, 1000);
+  </script>
+</body>
+</html>
