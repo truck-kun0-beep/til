@@ -6,6 +6,21 @@ const app = express();
 app.use(express.json());
 app.use("/users", userRoutes);
 
+const logger = (req, res, next) => {
+  console.log(req.method, req.originalUrl);
+  next();
+};
+
+app.get("/crash", (req, res) => {
+  throw new Error("boom");
+});
+
+
+app.use(logger);
+app.use("/users", userRoutes);
+
+
+
 app.listen(4000, (err) => {
   if (err) {
     console.error("Failed to start:", err.message);
