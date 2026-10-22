@@ -1,24 +1,19 @@
-const users = [
-  { id: 1, name: "Rafi", age: 20 },
-  { id: 2, name: "Nila", age: 21 },
-  { id: 3, name: "Sakib", age: 19 },
-];
-
-let nextId = 4;
+import db from "../db.js";
 
 export const getUsers = (req, res) => {
   const minAge = Number(req.query.minAge);
 
   if (minAge) {
-    return res.json(users.filter((u) => u.age >= minAge));
+    const rows = db.prepare("SELECT * FROM users WHERE age >= ?").all(minAge);
+    return res.json(rows);
   }
 
-  res.json(users);
+  res.json(db.prepare("SELECT * FROM users").all());
 };
 
 export const getUserById = (req, res) => {
   const id = Number(req.params.id);
-  const user = users.find((u) => u.id === id);
+  const user = db.prepare("SELECT * FROM users WHERE id = ?").get(id);
 
   if (!user) {
     return res.status(404).json({ message: "User not found" });
@@ -29,7 +24,9 @@ export const getUserById = (req, res) => {
 
 export const getUserName = (req, res) => {
   const id = Number(req.params.id);
-  const user = users.find((u) => u.id === id);
+  const user = db.prepare("SELECT * FROM users WHERE id = ?").get(id);
+
+
 
   if (!user) {
     return res.status(404).json({ message: "User not found" });
@@ -45,14 +42,16 @@ export const createUser = (req, res) => {
     return res.status(400).json({ message: "name and age are required" });
   }
 
-  const newUser = { id: nextId++, name, age };
-  users.push(newUser);
-  res.status(201).json(newUser);
+  const result = db
+    .prepare("INSERT INTO users (name, age) VALUES (?, ?)")
+    .run(name, age);
+
+  res.status(201).json({ id: result.lastInsertRowid, name, age });
 };
 
 export const updateUser = (req, res) => {
   const id = Number(req.params.id);
-  const user = users.find((u) => u.id === id);
+  const user = db.prepare("SELECT * FROM users WHERE id = ?").get(id);
 
   if (!user) {
     return res.status(404).json({ message: "User not found" });
@@ -64,19 +63,18 @@ export const updateUser = (req, res) => {
     return res.status(400).json({ message: "name and age are required" });
   }
 
-  user.name = name;
-  user.age = age;
-  res.json(user);
+  db.prepare("UPDATE users SET name = ?, age = ? WHERE id = ?").run(name, age, id);
+  res.json({ id, name, age });
 };
 
 export const deleteUser = (req, res) => {
   const id = Number(req.params.id);
-  const index = users.findIndex((u) => u.id === id);
+  const user = db.prepare("SELECT * FROM users WHERE id = ?").get(id);
 
-  if (index === -1) {
+  if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
 
-  users.splice(index, 1);
+  db.prepare("DELETE FROM users WHERE id = ?").run(id);
   res.status(204).send();
 };

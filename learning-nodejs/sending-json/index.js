@@ -34,4 +34,3 @@ app.listen(4000, (err) => {
   console.log("Server running on http://localhost:4000");
 });
 //G:\beginner\learning-nodejs\sending-json
-//Invoke-RestMethod -Method Delete -Uri http://localhost:4000/users/1
