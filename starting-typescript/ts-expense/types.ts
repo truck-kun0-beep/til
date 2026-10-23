@@ -27,6 +27,20 @@ const bad: Expense = {
 function addExpense(list: Expense[], expense: Expense): Expense[] {
   return [...list, expense]
 }
-addExpense([], lunch)
 
-console.log(addExpense([], lunch).length)  
+function totalByCategory(list: Expense[]): Record<Category, number> {
+  const totals: Record<Category, number> = {
+    food: 0,
+    transport: 0,
+    other: 0,
+  }
+
+  for (const e of list) {
+    
+    totals[e.category] += e.amount
+  }
+
+  return totals
+}
+const all = addExpense(addExpense([], lunch), bad)
+console.log(totalByCategory(all))
