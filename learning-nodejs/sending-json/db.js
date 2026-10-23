@@ -10,6 +10,14 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS accounts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL
+  )
+`);
+
 const count = db.prepare("SELECT COUNT(*) AS n FROM users").get().n;
 
 if (count === 0) {

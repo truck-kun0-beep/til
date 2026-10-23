@@ -1,5 +1,8 @@
 import express from "express";
 import userRoutes from "./routes/userRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+
+
 
 const app = express();
 
@@ -16,6 +19,8 @@ app.get("/crash", (req, res) => {
 });
 
 app.use("/users", userRoutes);
+app.use("/auth", authRoutes);
+
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
@@ -34,3 +39,5 @@ app.listen(4000, (err) => {
   console.log("Server running on http://localhost:4000");
 });
 //G:\beginner\learning-nodejs\sending-json
+
+//npm install bcryptjs
