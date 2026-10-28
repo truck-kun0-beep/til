@@ -42,5 +42,17 @@ function totalByCategory(list: Expense[]): Record<Category, number> {
 
   return totals
 }
+
+function filterByMonth(list: Expense[], month: string): Expense[] {
+  const result: Expense[] = []
+
+  for (const e of list) {
+    if (e.date.startsWith(month)) {
+      result.push(e)
+    }
+  }
+
+  return result
+}
 const all = addExpense(addExpense([], lunch), bad)
 console.log(totalByCategory(all))
