@@ -56,3 +56,7 @@ function filterByMonth(list: Expense[], month: string): Expense[] {
 }
 const all = addExpense(addExpense([], lunch), bad)
 console.log(totalByCategory(all))
+console.log(filterByMonth(all, "2026-10").length)
+console.log(filterByMonth(all, "2026-09").length)
+
+//cd G:\beginner\starting-typescript\ts-expense
