@@ -38,12 +38,12 @@ class Professor {
 
 class Department {
     private int deptid;
-    private String name;
+    private String deptname;
     private List<Professor> professors = new ArrayList<>();
 
-    public Department(int deptid, String name) {
+    public Department(int deptid, String deptname) {
         this.deptid = deptid;
-        this.name = name;
+        this.deptname = deptname;
     }
 
     public void addProfessor(Professor p) {
@@ -51,7 +51,7 @@ class Department {
     }
 
     public void display() {
-        System.out.println("Department ID: " + deptid + ", Name: " + name);
+        System.out.println("Department ID: " + deptid + ", Name: " + deptname);
 
         for (Professor p : professors) {
             p.display();
@@ -61,8 +61,10 @@ class Department {
 
 public class uni {
     public static void main(String[] args) {
-        Department d = new Department(10, "Computer Science");
+        Department d1 = new Department(10, "Computer Science");
+        Department d2 = new Department(20, "Mathematics");
 
+        d2.addProfessor(new Professor(102));
         Professor p1 = new Professor(101);
         Professor p2 = new Professor(102);
 
@@ -73,9 +75,9 @@ public class uni {
         p1.assignCourse(c2);
         p2.assignCourse(c2);
 
-        d.addProfessor(p1);
-        d.addProfessor(p2);
+        d1.addProfessor(p1);
+        d1.addProfessor(p2);
 
-        d.display();
+        d1.display();
     }
 }
