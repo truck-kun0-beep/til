@@ -76,6 +76,14 @@ async function addFromCommand(list: Expense[]): Promise<Expense[]> {
   return newList
 }
 
+function describePath(path: PropertyKey[]): string {
+  const first = path[0]
+  if (typeof first === "number") {
+    return `Row ${first + 1}, field "${String(path[1])}"`
+  }
+  return `field "${String(first)}"`
+}
+
 async function main() {
   const command = process.argv[2]
 
@@ -86,7 +94,6 @@ async function main() {
       for (const e of list) {
         console.log(`${e.id}. ${e.date}  ${e.category}  ${e.amount}`)
       }
-
     } else if (command === "total") {
       console.log(totalByCategory(list))
     } else if (command === "add") {
@@ -97,11 +104,9 @@ async function main() {
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.log("expenses.json has bad data:")
+      console.log("Invalid data:")
       for (const issue of error.issues) {
-        const row = Number(issue.path[0]) + 1
-        const field = String(issue.path[1])
-        console.log(`  Row ${row}, field "${field}": ${issue.message}`)
+        console.log(`  ${describePath(issue.path)}: ${issue.message}`)
       }
     } else {
       throw error
@@ -112,3 +117,5 @@ async function main() {
 main()
 //cd G:/beginner/starting-typescript/ts-expense
 //npx tsx types.ts
+//npx tsx types.ts add -5 food
+//npx tsx types.ts add 100 gaming
