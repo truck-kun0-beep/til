@@ -2,29 +2,29 @@ import { z } from "zod"
 
 import { readFile, writeFile } from "fs/promises"
 
-type Category = "food" | "transport" | "other"
-
-type Expense = {
-  id: number
-  amount: number
-  category: Category
-  date: string
-  note?: string | undefined
-}
-
 type Result<T> =
   | { ok: true; data: T }
   | { ok: false; error: string }
 
+const CategorySchema = z.enum(["food", "transport", "other"])
+type Category = z.infer<typeof CategorySchema>
+
 const ExpenseSchema = z.object({
   id: z.number(),
   amount: z.number().positive(),
-  category: z.enum(["food", "transport", "other"]),
+  category: CategorySchema,
   date: z.string(),
   note: z.string().optional(),
 })
-
+type Expense = z.infer<typeof ExpenseSchema>
 const ExpensesSchema = z.array(ExpenseSchema)
+
+function first<T>(list: T[]): T | undefined {
+  return list[0]
+}
+
+first([1, 2, 3])        // TS infers T = number, returns number | undefined
+first(["a", "b"])       // T = string
 
 function addExpense(list: Expense[], input: unknown): Result<Expense[]> {
   const parsed = ExpenseSchema.safeParse(input)
