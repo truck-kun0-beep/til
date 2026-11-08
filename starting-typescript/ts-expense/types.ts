@@ -99,18 +99,28 @@ async function main() {
     } else if (command === "add") {
       await addFromCommand(list)
       console.log("Added!")
+    } else if (command === "month") {
+        const month = process.argv[3]
+        if (!month) {
+          console.log("Usage: npx tsx types.ts month <YYYY-MM>")
+        } else {
+          const filtered = filterByMonth(list, month)
+          for (const e of filtered) {
+            console.log(`${e.id}. ${e.date}  ${e.category}  ${e.amount}`)
+          }
+        }
     } else {
-      console.log("Usage: npx tsx types.ts list | total | add <amount> <category> [note]")
+      console.log("Usage: npx tsx types.ts list | total | add <amount> <category> [note] | month <month>")
     }
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.log("Invalid data:")
-      for (const issue of error.issues) {
-        console.log(`  ${describePath(issue.path)}: ${issue.message}`)
+      if (error instanceof z.ZodError) {
+        console.log("Invalid data:")
+        for (const issue of error.issues) {
+          console.log(`  ${describePath(issue.path)}: ${issue.message}`)
+        }
+      } else {
+        throw error
       }
-    } else {
-      throw error
-    }
   }
 }
 
