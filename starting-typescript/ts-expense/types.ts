@@ -1,7 +1,6 @@
 import { z } from "zod"
 
 import { readFile, writeFile } from "fs/promises"
-import id from "zod/v4/locales/id.js"
 
 type Category = "food" | "transport" | "other"
 
@@ -13,6 +12,10 @@ type Expense = {
   note?: string | undefined
 }
 
+type Result<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: string }
+
 const ExpenseSchema = z.object({
   id: z.number(),
   amount: z.number().positive(),
@@ -23,8 +26,12 @@ const ExpenseSchema = z.object({
 
 const ExpensesSchema = z.array(ExpenseSchema)
 
-function addExpense(list: Expense[], expense: Expense): Expense[] {
-  return [...list, expense]
+function addExpense(list: Expense[], input: unknown): Result<Expense[]> {
+  const parsed = ExpenseSchema.safeParse(input)
+  if (!parsed.success) {
+    return { ok: false, error: formatZodError(parsed.error) }
+  }
+  return { ok: true, data: [...list, parsed.data] }
 }
 
 function totalByCategory(list: Expense[]): Record<Category, number> {
@@ -59,22 +66,21 @@ async function loadExpenses(): Promise<Expense[]> {
   return ExpensesSchema.parse(data)
 }
 
-async function addFromCommand(list: Expense[]): Promise<Expense[]> {
-  const amount = Number(process.argv[3])
-  const category = process.argv[4]
+async function addFromCommand(list: Expense[]): Promise<Result<Expense[]>> {
   const note = process.argv[5]
 
-  const parsed = ExpenseSchema.parse({
+  const result = addExpense(list, {
     id: Math.max(0, ...list.map(e => e.id)) + 1,
-    amount,
-    category,
+    amount: Number(process.argv[3]),
+    category: process.argv[4],
     date: new Date().toISOString().slice(0, 10),
     ...(note ? { note } : {}),
   })
 
-  const newList = addExpense(list, parsed)
-  await writeFile("expenses.json", JSON.stringify(newList, null, 2))
-  return newList
+  if (!result.ok) return result
+
+  await writeFile("expenses.json", JSON.stringify(result.data, null, 2))
+  return result
 }
 
 function describePath(path: PropertyKey[]): string {
@@ -84,6 +90,13 @@ function describePath(path: PropertyKey[]): string {
   }
   return `field "${String(first)}"`
 }
+
+function formatZodError(error: z.ZodError): string {
+  return error.issues
+    .map(issue => `${describePath(issue.path)}: ${issue.message}`)
+    .join("\n")
+}
+
 function deleteExpense(list: Expense[], id: number): Expense[] {
   return list.filter(e => e.id !== id)
 }
@@ -101,8 +114,12 @@ async function main() {
     } else if (command === "total") {
       console.log(totalByCategory(list))
     } else if (command === "add") {
-      await addFromCommand(list)
-      console.log("Added!")
+      const result = await addFromCommand(list)
+      if (result.ok) {
+        console.log("Added!")
+      } else {
+        console.log(`Could not add:\n${result.error}`)
+      }
     } else if (command === "month") {
         const month = process.argv[3]
         if (!month) {
