@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 import { readFile, writeFile } from "fs/promises"
+import id from "zod/v4/locales/id.js"
 
 type Category = "food" | "transport" | "other"
 
@@ -64,7 +65,7 @@ async function addFromCommand(list: Expense[]): Promise<Expense[]> {
   const note = process.argv[5]
 
   const parsed = ExpenseSchema.parse({
-    id: list.length + 1,
+    id: Math.max(0, ...list.map(e => e.id)) + 1,
     amount,
     category,
     date: new Date().toISOString().slice(0, 10),
@@ -82,6 +83,9 @@ function describePath(path: PropertyKey[]): string {
     return `Row ${first + 1}, field "${String(path[1])}"`
   }
   return `field "${String(first)}"`
+}
+function deleteExpense(list: Expense[], id: number): Expense[] {
+  return list.filter(e => e.id !== id)
 }
 
 async function main() {
@@ -109,8 +113,21 @@ async function main() {
             console.log(`${e.id}. ${e.date}  ${e.category}  ${e.amount}`)
           }
         }
+    } else if (command === "delete") {
+      const id = Number(process.argv[3])
+      if (!id) {
+        console.log("Usage: npx tsx types.ts delete <id>")
+      } else {
+        const newList = deleteExpense(list, id)
+        if (newList.length === list.length) {
+          console.log(`No expense with id ${id}.`)
+        } else {
+          await writeFile("expenses.json", JSON.stringify(newList, null, 2))
+          console.log("Deleted!")
+        }
+      }
     } else {
-      console.log("Usage: npx tsx types.ts list | total | add <amount> <category> [note] | month <month>")
+      console.log("Usage: npx tsx types.ts list | total | add <amount> <category> [note] | month <month> | delete <id>")
     }
   } catch (error) {
       if (error instanceof z.ZodError) {
