@@ -31,5 +31,11 @@
     "category": "food",
     "date": "2026-11-08",
     "note": "lunch"
+  },
+  {
+    "id": 7,
+    "amount": 50,
+    "category": "food",
+    "date": "2026-11-10"
   }
 ]

@@ -34,3 +34,15 @@ npx tsx types.ts total
 - TypeScript types, union types, and `Record`
 - async/await and reading/writing files with `fs/promises`
 - Validating data with Zod
+
+## API
+
+Run: `npx tsx api.ts` (port 3000)
+
+- GET  /expenses          list all expenses
+- POST /expenses          add one, body: { amount, category, note? }, 400 if invalid
+- GET  /expenses/summary  totals by category and by month
+
+## Tests
+
+`npm test` (Vitest)

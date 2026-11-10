@@ -17,7 +17,6 @@ export const ExpenseSchema = z.object({
 export type Expense = z.infer<typeof ExpenseSchema>
 
 export const ExpensesSchema = z.array(ExpenseSchema)
+export const NewExpenseSchema = ExpenseSchema.omit({ id: true, date: true })
 //cd G:/beginner/starting-typescript/ts-expense
 //npx tsx types.ts
-//npx tsx types.ts add -5 food
-//npx tsx types.ts add 100 gaming
